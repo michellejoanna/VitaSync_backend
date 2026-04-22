@@ -5,11 +5,15 @@ from flask import Blueprint, request, jsonify
 from models import db, User, UserGoal, MasterBlueprint
 from google import genai
 from models import DailyLog # Ensure DailyLog is imported at the top!
+from dotenv import load_dotenv
 
+# Load the hidden secrets from the .env file
+load_dotenv()
 
 goal_bp = Blueprint('goal_engine', __name__)
 
-GEMINI_API_KEY = "AIzaSyB_EZdn_k3mbKtzLUpnm56E_osj3odF9Q4"
+# Safely grab the key without hardcoding it!
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 @goal_bp.route('/check_feasibility', methods=['POST'])
 def check_feasibility():
