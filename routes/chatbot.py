@@ -1,12 +1,18 @@
+import os
 from flask import Blueprint, request, jsonify
 from datetime import datetime
 from google import genai # NEW: Updated SDK
 from models import User
+from dotenv import load_dotenv
+
+# NEW: Explicitly load the hidden .env file
+load_dotenv()
 
 chatbot_bp = Blueprint('chatbot_bp', __name__)
 
-# Configure the new Gemini Client
-client = genai.Client(api_key="AIzaSyBK-eufNypvZQp4DfH_m9CuNoKUAexwv2M")
+# Configure the new Gemini Client safely!
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 @chatbot_bp.route('/ask_ai', methods=['POST'])
 def ask_ai():

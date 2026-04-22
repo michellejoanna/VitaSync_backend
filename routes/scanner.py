@@ -7,11 +7,13 @@ from models import db, FoodLog, User
 from google import genai
 from google.genai import types
 from models import DailyLog
+import os
+from dotenv import load_dotenv
 
 scanner_bp = Blueprint('scanner', __name__)
 
-# REPLACE WITH YOUR ACTUAL API KEY (or use os.environ.get('GEMINI_API_KEY'))
-GEMINI_API_KEY = "AIzaSyB_EZdn_k3mbKtzLUpnm56E_osj3odF9Q4"
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Ensure temp upload folder exists for scanner
 UPLOAD_FOLDER = 'uploads/temp_scans'
