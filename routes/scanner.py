@@ -94,7 +94,8 @@ def analyze_food():
         if ai_data.get("error") == "unclear_image":
             if os.path.exists(filepath):
                 os.remove(filepath)
-            return jsonify({"status": "error", "message": "unclear_image"}), 400
+            # FIX: Show clear message for Android Toast
+            return jsonify({"status": "error", "message": "Image is not clear."}), 400
             
         # Handle Mismatch Error (Strict Auditor)
         if ai_data.get("error") == "mismatch":
@@ -155,21 +156,18 @@ def analyze_food():
         }), 200
 
     except Exception as e:
-        print(f"CRITICAL SCANNER CRASH: {str(e)}") # NEW: This will print the EXACT reason it crashed!
+        print(f"CRITICAL SCANNER CRASH: {str(e)}") 
         if os.path.exists(filepath):
             os.remove(filepath)
             
         error_msg = str(e).lower()
         
-        # Check for API Quota / Rate Limit errors
+        # FIX: Exact error messages for the Android Toast instead of fake demo data
         if "429" in error_msg or "quota" in error_msg or "exhausted" in error_msg:
-            print("API QUOTA EXCEEDED DETECTED!")
-            return jsonify({"status": "error", "message": "quota_exceeded"}), 429
+            return jsonify({"status": "error", "message": "Today limit finished try tomorrow."}), 429
             
-        # NEW: Check for Google Server Overload (503)
         if "503" in error_msg or "unavailable" in error_msg or "high demand" in error_msg:
-            print("GEMINI SERVERS ARE OVERLOADED!")
-            return jsonify({"status": "error", "message": "ai_busy"}), 503
+            return jsonify({"status": "error", "message": "Heavy traffic occurs try again later."}), 503
             
         return jsonify({"status": "error", "message": str(e)}), 500
 

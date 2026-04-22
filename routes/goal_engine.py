@@ -301,16 +301,19 @@ def weekly_update():
                 "ai_response": f"Congratulations! You reached your target in {days_taken} days!"
             }), 200
 
-        # If not achieved, generate Week 2
+        # If not achieved, dynamically calculate the NEXT week
+        current_completed_week = goal.last_checkin_week if goal.last_checkin_week is not None else 0
+        next_week = current_completed_week + 2 
+
         client = genai.Client(api_key=GEMINI_API_KEY)
         prompt = f"""
         Act as an expert medical doctor and fitness coach.
         User Profile: Age {user.dob}, Gender {user.gender}, Current Weight {user.weight}.
         Master Goal: {goal.goal_type} to reach {goal.target_value}.
         
-        Week 1 Check-in Feedback from User: "{user_feedback}"
+        Week {next_week - 1} Check-in Feedback from User: "{user_feedback}"
         
-        Based on this feedback, generate a slightly adjusted, more optimized Week 2 Blueprint.
+        Based on this feedback, generate a slightly adjusted, more optimized Week {next_week} Blueprint.
         CRITICAL RULE: You may ONLY prescribe exercises from: [Squats, Push-ups, Pull-ups, Jumping Jacks, Russian Twists].
         
         Return ONLY a strict JSON object:
@@ -342,7 +345,7 @@ def weekly_update():
         return jsonify({
             "status": "success", 
             "goal_achieved": False,
-            "message": "Week 2 Plan Generated!", 
+            "message": f"Week {next_week} Plan Generated!", 
             "ai_response": ai_data.get('feedback', 'Keep up the good work!')
         }), 200
         
@@ -352,11 +355,15 @@ def weekly_update():
         
         error_msg = str(e).lower()
         
+        # Calculate the next week dynamically for the fallback message too!
+        current_completed_week = goal.last_checkin_week if goal.last_checkin_week is not None else 0
+        next_week = current_completed_week + 2 
+        
         # DEMO MODE FALLBACK: Distinguish between Quota and Traffic
         if "429" in error_msg or "quota" in error_msg or "exhausted" in error_msg:
-            ai_response = "[Demo Data] Today limit finished try tomorrow. Week 2 plan loaded!"
+            ai_response = f"[Demo Data] Today limit finished try tomorrow. Week {next_week} plan loaded!"
         elif "503" in error_msg or "unavailable" in error_msg or "high demand" in error_msg:
-            ai_response = "[Demo Data] Heavy traffic occurs try again later. Week 2 plan loaded!"
+            ai_response = f"[Demo Data] Heavy traffic occurs try again later. Week {next_week} plan loaded!"
         else:
             return jsonify({"status": "error", "message": str(e)}), 500
 
@@ -390,6 +397,6 @@ def weekly_update():
         return jsonify({
             "status": "success", 
             "goal_achieved": False,
-            "message": "Week 2 Plan Generated!", 
+            "message": f"Week {next_week} Plan Generated!", 
             "ai_response": ai_response
         }), 200

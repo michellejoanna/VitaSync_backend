@@ -64,4 +64,10 @@ def ask_ai():
         
         return jsonify({'status': 'success', 'reply': response.text}), 200
     except Exception as e:
+        error_msg = str(e).lower()
+        if "429" in error_msg or "quota" in error_msg or "exhausted" in error_msg:
+            return jsonify({'status': 'error', 'message': 'Today limit finished try tomorrow.'}), 429
+        elif "503" in error_msg or "unavailable" in error_msg or "high demand" in error_msg:
+            return jsonify({'status': 'error', 'message': 'Heavy traffic occurs try again later.'}), 503
+            
         return jsonify({'status': 'error', 'message': str(e)}), 500
